@@ -5,8 +5,6 @@ import time
 from math import *
 import matplotlib.pyplot as plt
 
-#todo: add pl functions/methods
-
 class space(object):
     def __init__(self,weight,penalty,aggDistance,aggCount,visual,gridSize):
         self.grid = []
