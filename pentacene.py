@@ -51,6 +51,11 @@ class vMol(mol):
         self.color = someVector
         self.bol.color = someVector
 
+def chanceWrap(k,dt):
+    def sigChance(agg):
+        return 1/2*k*dt + (k*dt)/(1.0+exp(len(agg)))
+    return sigChance
+
 def populate(popSize, world, someObject):
     #populate list containing molecules
     for i in range (0,popSize):
@@ -84,7 +89,7 @@ def populate(popSize, world, someObject):
 def decay(world, chance):
     for i in world.grid:
         roll=100*random.random()
-        if roll <= chance:
+        if roll <= chance(i.agg):
             if len(i.agg)>=world.aggCount:
                 world.totalagg.remove(i)
             for k in i.agg:
@@ -119,8 +124,8 @@ def main(weight, penalty, aggDistance, aggCount,
     plpoints=np.array(world.pl())
     #chance of decay per millisecond per molecule
     k = 1e-2
-    #actual chance of decay for each timestep
-    chance = k * dt
+
+    chance = chanceWrap(k,dt)
 
     while (len(world.grid)!=0):
         world = decay(world, chance)
@@ -139,4 +144,4 @@ def main(weight, penalty, aggDistance, aggCount,
 
 if __name__ == '__main__':
     path = "/home/jared/projets/pentacene/plot.png"
-    main(10,1/7,0.1,5,False,True,True)
+    main(10,1/7,0.01,2,True,True,False)
