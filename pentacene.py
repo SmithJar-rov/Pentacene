@@ -14,6 +14,7 @@ class space(object):
         self.weight = weight
         self.penalty = penalty
         self.gridSize = gridSize
+        self.pl = 0
         if visual:
             self.someObject = vMol
             self.scene=canvas(title = 'Pentacene',
@@ -23,8 +24,9 @@ class space(object):
         else:
             self.someObject = mol
 
-    def pl(self):
-        return self.weight*self.penalty*len(self.totalagg) + self.weight*(len(self.grid) - len(self.totalagg))
+#    old pl function
+#    def pl(self):
+#        return self.weight*self.penalty*len(self.totalagg) + self.weight*(len(self.grid) - len(self.totalagg))
 
 class mol(object):
     def __init__(self, gridSize):
@@ -51,9 +53,9 @@ class vMol(mol):
         self.color = someVector
         self.bol.color = someVector
 
-def chanceWrap(k,dt):
-    def sigChance(agg):
-        return 1/2*k*dt + (k*dt)/(1.0+exp(len(agg)))
+def funWrap(arg):
+    def sigmoid(agg):
+        return 1/2*arg + (arg)/(1.0+exp(len(agg)))
     return sigChance
 
 def populate(popSize, world, someObject):
@@ -86,7 +88,7 @@ def populate(popSize, world, someObject):
             world.totalagg = world.totalagg + [i]
     return world
 
-def decay(world, chance):
+def decay(world, chance, pl):
     for i in world.grid:
         roll=100*random.random()
         if roll <= chance(i.agg):
@@ -100,6 +102,7 @@ def decay(world, chance):
                     world.totalagg.remove(k)
             i.color(color.red)
             world.grid.remove(i)
+        else world.pl = pl(i)
     return world
 
 def fPlot(tpoints, plpoints):
@@ -125,14 +128,15 @@ def main(weight, penalty, aggDistance, aggCount,
     #chance of decay per millisecond per molecule
     k = 1e-2
 
-    chance = chanceWrap(k,dt)
+    chance = funWrap(k*dt)
+    pl = funWrap(weight)
 
     while (len(world.grid)!=0):
-        world = decay(world, chance)
+        world = decay(world, chance, pl)
         #print("Grid Total = ",len(world.grid))
         t = t + dt
         tpoints = np.append(tpoints,t)
-        plpoints = np.append(plpoints, world.pl())
+        plpoints = np.append(plpoints, world.pl)
 
     if plot:
         plt=fPlot(tpoints, plpoints)
