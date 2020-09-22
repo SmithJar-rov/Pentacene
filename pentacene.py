@@ -56,7 +56,7 @@ class vMol(mol):
 def funWrap(arg):
     def sigmoid(agg):
         return 1/2*arg + (arg)/(1.0+exp(len(agg)))
-    return sigChance
+    return sigmoid
 
 def populate(popSize, world, someObject):
     #populate list containing molecules
@@ -89,6 +89,7 @@ def populate(popSize, world, someObject):
     return world
 
 def decay(world, chance, pl):
+    world.pl = 0
     for i in world.grid:
         roll=100*random.random()
         if roll <= chance(i.agg):
@@ -102,7 +103,8 @@ def decay(world, chance, pl):
                     world.totalagg.remove(k)
             i.color(color.red)
             world.grid.remove(i)
-        else world.pl = pl(i)
+        else:
+            world.pl = world.pl + pl(i.agg)
     return world
 
 def fPlot(tpoints, plpoints):
@@ -124,7 +126,7 @@ def main(weight, penalty, aggDistance, aggCount,
     #array containing time
     tpoints=np.array(t)
     #pl and array containing pl
-    plpoints=np.array(world.pl())
+    plpoints=np.array(world.pl)
     #chance of decay per millisecond per molecule
     k = 1e-2
 
