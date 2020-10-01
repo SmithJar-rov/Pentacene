@@ -54,14 +54,18 @@ class vMol(mol):
         self.bol.color = someVector
 
 def funWrap(arg):
+    #arg is equal to the maximum value of the function,
+    #whether it be maximum pl or maximum decay chance
+    #both decrease with respect to the amount of nearby molecules
+    #so the function can be used for both
     def sigmoid(agg):
         return 1/2*arg + (arg)/(1.0+exp(len(agg)))
     return sigmoid
 
-def populate(popSize, world, someObject):
+def populate(world, popSize, pl):
     #populate list containing molecules
     for i in range (0,popSize):
-       world.grid = world.grid + [someObject(world.gridSize)]
+       world.grid = world.grid + [world.someObject(world.gridSize)]
        for j in world.grid:
            #check euclidian distance between molecule k and molecule j
            radius = mag(world.grid[i].pos - j.pos)
@@ -82,10 +86,11 @@ def populate(popSize, world, someObject):
                world.grid[i].agg=world.grid[i].agg + [j]
                j.agg = j.agg + [world.grid[i]]
 
-    #populate list containing aggregates
+    #populate list containing aggregates and calculate initial pl value
     for i in world.grid:
         if len(i.agg)>=world.aggCount:
             world.totalagg = world.totalagg + [i]
+        world.pl = world.pl + pl(i.agg)
     return world
 
 def decay(world, chance, pl):
@@ -116,22 +121,24 @@ def fPlot(tpoints, plpoints):
 
 def main(weight, penalty, aggDistance, aggCount,
          visual = False, plot = False, save = False, popSize = 200, gridSize = 0.1):
-    world = space(weight, penalty, aggDistance, aggCount, visual, gridSize)
-    world = populate(popSize, world, world.someObject)
-
     #time in milliseconds
     t=0
     #timestep in milliseconds
     dt = 100
-    #array containing time
-    tpoints=np.array(t)
-    #pl and array containing pl
-    plpoints=np.array(world.pl)
     #chance of decay per millisecond per molecule
     k = 1e-2
 
     chance = funWrap(k*dt)
     pl = funWrap(weight)
+
+    #create an populate the world
+    world = space(weight, penalty, aggDistance, aggCount, visual, gridSize)
+    world = populate(world, popSize, pl)
+
+    #array containing time
+    tpoints=np.array(t)
+    #containing pl
+    plpoints=np.array(world.pl)
 
     while (len(world.grid)!=0):
         world = decay(world, chance, pl)
