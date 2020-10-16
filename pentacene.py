@@ -53,14 +53,13 @@ class vMol(mol):
         self.color = someVector
         self.bol.color = someVector
 
-def funWrap(arg):
-    #arg is equal to the maximum value of the function,
-    #whether it be maximum pl or maximum decay chance
-    #both decrease with respect to the amount of nearby molecules
-    #so the function can be used for both
-    def sigmoid(agg):
-        return 1/2*arg + (arg)/(1.0+exp(len(agg)))
-    return sigmoid
+def funWrap(argMax, argMin, aggCount):
+    def linear(agg):
+        if len(agg) < aggCount:
+            return (argMin-argMax)/aggCount * len(agg) + argMax
+        else:
+            return argMin
+    return linear
 
 def populate(world, popSize, pl):
     #populate list containing molecules
@@ -119,8 +118,8 @@ def fPlot(tpoints, plpoints):
    plt.ylabel('Pl')
    return plt
 
-def main(weight, penalty, aggDistance, aggCount,
-         visual = False, plot = False, save = False, popSize = 200, gridSize = 0.1):
+def main(penalty, aggDistance, aggCount, minChance,
+         plot = True, save = True, visual = False, popSize = 200, gridSize = 0.1, weight = 10):
     #time in milliseconds
     t=0
     #timestep in milliseconds
@@ -128,8 +127,8 @@ def main(weight, penalty, aggDistance, aggCount,
     #chance of decay per millisecond per molecule
     k = 1e-2
 
-    chance = funWrap(k*dt)
-    pl = funWrap(weight)
+    chance = funWrap(k*dt, k*dt*minChance, aggCount)
+    pl = funWrap(weight, weight*penalty, aggCount)
 
     #create an populate the world
     world = space(weight, penalty, aggDistance, aggCount, visual, gridSize)
@@ -156,5 +155,4 @@ def main(weight, penalty, aggDistance, aggCount,
         plt.savefig(path)
 
 if __name__ == '__main__':
-    path = "/home/jared/projets/pentacene/plot.png"
-    main(10,1/7,0.01,2,True,True,False)
+    main(1/7,0.05,5,0.5,True,False,True)
