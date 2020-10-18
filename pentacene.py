@@ -119,7 +119,7 @@ def fPlot(tpoints, plpoints):
    return plt
 
 def main(penalty, aggDistance, aggCount, minChance,
-         plot = True, save = True, visual = False, popSize = 200, gridSize = 0.1, weight = 10):
+         visual = False, returnPlot = True, popSize = 200, gridSize = 0.1, weight = 10):
     #time in milliseconds
     t=0
     #timestep in milliseconds
@@ -131,7 +131,7 @@ def main(penalty, aggDistance, aggCount, minChance,
     pl = funWrap(weight, weight*penalty, aggCount)
 
     #create an populate the world
-    world = space(weight, penalty, aggDistance, aggCount, visual, gridSize)
+    world = space(weight, penalty, aggDistance*gridSize, aggCount, visual, gridSize)
     world = populate(world, popSize, pl)
 
     #array containing time
@@ -146,13 +146,9 @@ def main(penalty, aggDistance, aggCount, minChance,
         tpoints = np.append(tpoints,t)
         plpoints = np.append(plpoints, world.pl)
 
-    if plot:
-        plt=fPlot(tpoints, plpoints)
-        plt.show()
-
-    if save:
-        plt=fPlot(tpoints,plpoints)
-        plt.savefig(path)
+    if returnPlot:
+        return(fPlot(tpoints, plpoints))
 
 if __name__ == '__main__':
-    main(1/7,0.05,5,0.5,True,False,True)
+    plt=main(1/7,0.05,5,0.5,True)
+    plt.show()
