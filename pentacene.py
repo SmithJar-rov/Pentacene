@@ -6,13 +6,11 @@ from math import *
 import matplotlib.pyplot as plt
 
 class space(object):
-    def __init__(self,weight,penalty,aggDistance,aggCount,visual,gridSize):
+    def __init__(self,weight,aggWeight,aggDistance,aggCount,visual,gridSize):
         self.grid = []
         self.totalagg = []
         self.aggDistance = aggDistance
         self.aggCount = aggCount
-        self.weight = weight
-        self.penalty = penalty
         self.gridSize = gridSize
         self.pl = 0
         if visual:
@@ -26,7 +24,7 @@ class space(object):
 
 #    old pl function
 #    def pl(self):
-#        return self.weight*self.penalty*len(self.totalagg) + self.weight*(len(self.grid) - len(self.totalagg))
+#        return self.weight*self.aggWeight*len(self.totalagg) + self.weight*(len(self.grid) - len(self.totalagg))
 
 class mol(object):
     def __init__(self, gridSize):
@@ -118,8 +116,14 @@ def fPlot(tpoints, plpoints):
    plt.ylabel('Pl')
    return plt
 
-def main(penalty, aggDistance, aggCount, minChance,
-         visual = False, returnPlot = True, popSize = 200, gridSize = 0.1, weight = 10):
+def main(aggWeight, aggDistance, aggCount, aggChance,
+         visual = False, returnPlot = True):
+    #population size in grid is 200 molecules
+    popSize = 200
+    #the grid size is 0.1
+    gridSize = 0.1
+    #light emission of a non-aggregate molecule
+    weight = 10
     #time in milliseconds
     t=0
     #timestep in milliseconds
@@ -127,11 +131,11 @@ def main(penalty, aggDistance, aggCount, minChance,
     #chance of decay per millisecond per molecule
     k = 1e-2
 
-    chance = funWrap(k*dt, k*dt*minChance, aggCount)
-    pl = funWrap(weight, weight*penalty, aggCount)
+    chance = funWrap(k*dt, k*dt*aggChance, aggCount)
+    pl = funWrap(weight, weight*aggWeight, aggCount)
 
     #create an populate the world
-    world = space(weight, penalty, aggDistance*gridSize, aggCount, visual, gridSize)
+    world = space(weight, aggWeight, aggDistance*gridSize, aggCount, visual, gridSize)
     world = populate(world, popSize, pl)
 
     #array containing time
@@ -150,5 +154,5 @@ def main(penalty, aggDistance, aggCount, minChance,
         return(fPlot(tpoints, plpoints))
 
 if __name__ == '__main__':
-    plt=main(1/7,0.05,5,0.5,True)
+    plt=main(0.25,0.01,1,0.5,True)
     plt.show()
