@@ -7,11 +7,11 @@ def main(aggWeight, aggDistance, aggCount, aggChance):
     #after some testing, it seems like the desired effect does
     #not happen until aggDistance > 0.20
     #so that is why this is our lower bound
-    for b in np.linspace(0.20, aggDistance, 6):
+    for b in np.linspace(0.20, aggDistance, 5):
         folder = "distance=%s/"%(b)
         path = os.path.join('./plots/',folder)
         os.mkdir(path)
-        for a in np.linspace(1/10*aggWeight, aggWeight, 5):
+        for a in np.linspace(0.10, 0.30, 5):
             for c in np.linspace(1,aggCount,5):
                 for d in np.linspace(1/10*aggChance,aggChance,5):
                     print(a,b,c,d)
@@ -20,4 +20,4 @@ def main(aggWeight, aggDistance, aggCount, aggChance):
                     plt.close()
 
 if __name__ == '__main__':
-    main(1,0.70,25,1)
+    main(1,0.40,25,1)

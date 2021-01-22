@@ -6,6 +6,11 @@ from math import *
 import matplotlib.pyplot as plt
 
 class space(object):
+    '''class which describes the world space:
+    'visual' indicates that simulation will use vpython objects
+    represent molecule decays, and constructs the appropriate
+    vpython objects.  letting someObject = vMol is how other functions know
+    if they need to use vpython objects'''
     def __init__(self,weight,aggWeight,aggDistance,aggCount,visual,gridSize):
         self.grid = []
         self.totalagg = []
@@ -27,13 +32,17 @@ class space(object):
 #        return self.weight*self.aggWeight*len(self.totalagg) + self.weight*(len(self.grid) - len(self.totalagg))
 
 class mol(object):
+    '''"molecule" object class that doesn't use vpython objects'''
     def __init__(self, gridSize):
+        #list containing adjacent molecules
         self.agg = []
+        #position of the molecule
         self.cord(vector(
             gridSize*random.random(),
             gridSize*random.random(),
             gridSize*random.random()))
 
+    #these are here for compatability with vpython-oriented functions
     def cord(self, someVector):
         self.pos = someVector
 
@@ -41,6 +50,7 @@ class mol(object):
         self.color = someVector
 
 class vMol(mol):
+    ''''molecule' class that uses vpython objects for visualization'''
     def cord(self, someVector):
         self.pos = someVector
         self.bol = sphere(pos=self.pos,
@@ -52,6 +62,9 @@ class vMol(mol):
         self.bol.color = someVector
 
 def funWrap(argMax, argMin, aggCount):
+    '''function wrapper used for decay chance and pl
+    argMin = minimum desired pl, argMax = maximum desired pl, aggCount = how many
+    aggregates necessary to reach the full aggregation effect, etc'''
     def linear(agg):
         if len(agg) < aggCount:
             return (argMin-argMax)/aggCount * len(agg) + argMax
@@ -60,7 +73,7 @@ def funWrap(argMax, argMin, aggCount):
     return linear
 
 def populate(world, popSize, pl):
-    #populate list containing molecules
+    '''populate list containing molecules'''
     for i in range (0,popSize):
        world.grid = world.grid + [world.someObject(world.gridSize)]
        for j in world.grid:
@@ -91,6 +104,7 @@ def populate(world, popSize, pl):
     return world
 
 def decay(world, chance, pl):
+    '''one trial of random sampling decays'''
     world.pl = 0
     for i in world.grid:
         roll=100*random.random()
